@@ -1,0 +1,20 @@
+services:
+  redis:
+    image: redis:8
+    container_name: redis-server
+    network_mode: host
+    ports:
+      - "6379:6379"
+    #redis-server --requirepass $REDIS_PASSWORD --loadmodule /usr/local/lib/redis/modules/redisearch.so --loadmodule /usr/local/lib/redis/modules/rejson.so
+    command: redis-server --appendonly yes --loadmodule /usr/local/lib/redis/modules/redisbloom.so --loadmodule /usr/local/lib/redis/modules/redisearch.so
+    restart: always
+
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    container_name: redisinsight
+    network_mode: host
+    ports:
+      - "5540:5540"
+    restart: always
+
+
