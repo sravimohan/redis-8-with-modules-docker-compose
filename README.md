@@ -52,28 +52,6 @@ docker-compose up -d
 - **Access**: `http://localhost:5540`
 - **Auto-configured**: Automatically connects to Redis server
 
-## Configuration
-
-### Redis Configuration
-
-The Redis server uses a custom configuration file located at `config/redis.conf` (mounted to the container). Key settings include:
-
-- Append-only file persistence enabled
-- Redis modules loaded from the base Redis 8 image (RedisBloom, RediSearch, RedisJSON, RedisTimeSeries)
-- Default configuration optimized for development
-
-**Note**: There's also a `config/redis-full.conf` with additional module configurations available.
-
-### RedisInsight Configuration
-
-RedisInsight is pre-configured with environment variables to automatically connect to the Redis server:
-
-- `RI_AUTO_ACCEPT_EULA=YES`: Automatically accepts the EULA
-- `RI_TELEMETRY_ENABLED=FALSE`: Disables telemetry
-- `RI_REDIS_HOST=redis`: Points to the Redis container
-- `RI_REDIS_PORT=6379`: Redis port
-- `RI_REDIS_USERNAME=default`: Default Redis user
-
 ### Using RedisInsight
 
 RedisInsight should automatically connect to your Redis server when you open `http://localhost:5540`. If you need to manually add a connection:
@@ -132,24 +110,6 @@ JSON.GET user:1
 # RedisTimeSeries - Create time series
 TS.CREATE temperature
 TS.ADD temperature 1609459200 23.5
-```
-
-## Directory Structure
-
-```text
-redis8/
-├── docker-compose.yaml    # Docker Compose configuration
-├── README.md             # This file
-├── LICENSE               # Project license
-├── .gitignore            # Git ignore file
-├── config/               # Redis configuration files
-│   ├── redis.conf        # Main Redis configuration
-│   └── redis-full.conf   # Full Redis configuration with modules
-├── data/                 # Redis data persistence
-│   ├── dump.rdb          # Redis database snapshot
-│   └── appendonlydir/    # AOF persistence files
-├── logs/                 # Redis log files
-└── redis.conf/           # Empty directory (legacy)
 ```
 
 ## Data Persistence
