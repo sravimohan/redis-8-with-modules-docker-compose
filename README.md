@@ -58,7 +58,7 @@ RedisInsight should automatically connect to your Redis server when you open `ht
 
 1. Open `http://localhost:5540` in your browser
 2. Add a new database connection:
-   - **Host**: `redis` (container name) or `localhost` (from host)
+   - **Host**: `redis-server` (container name for connecting from redis insight) or `localhost` (from host)
    - **Port**: `6379`
    - **Username**: `default` (or leave empty)
    - **Password**: Leave empty (unless configured)
@@ -93,31 +93,6 @@ This setup includes the following Redis modules (built into Redis 8):
 - **RedisTimeSeries**: Time series data management, including ingestion, querying, and aggregation
 - **VectorSet**: Vector similarity search capabilities
 
-### Using Redis Modules
-
-```redis
-# RedisBloom - Create a Bloom filter
-BF.ADD myfilter item1
-BF.EXISTS myfilter item1
-
-# RediSearch - Create a search index
-FT.CREATE idx ON HASH PREFIX 1 doc: SCHEMA title TEXT body TEXT
-
-# RedisJSON - Store JSON data
-JSON.SET user:1 $ '{"name":"John","age":30}'
-JSON.GET user:1
-
-# RedisTimeSeries - Create time series
-TS.CREATE temperature
-TS.ADD temperature 1609459200 23.5
-```
-
-## Data Persistence
-
-- **AOF (Append Only File)**: Enabled for durability
-- **Data Directory**: `./data/` (mounted as volume)
-- **Logs Directory**: `./logs/` (mounted as volume)
-
 ## Troubleshooting
 
 ### Cannot Connect to Redis
@@ -141,7 +116,7 @@ TS.ADD temperature 1609459200 23.5
 
 ## License
 
-See the [LICENSE](LICENSE) file for details.
+See the [LICENSE](MIT LICENSE) file for details.
 
 ## Contributing
 
