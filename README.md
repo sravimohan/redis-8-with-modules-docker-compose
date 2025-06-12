@@ -116,7 +116,7 @@ This setup includes the following Redis modules (built into Redis 8):
 
 ## License
 
-See the [LICENSE](MIT LICENSE) file for details.
+See the [MIT LICENSE](LICENSE) file for details.
 
 ## Contributing
 
