@@ -8,16 +8,15 @@ This project provides a complete Redis 8 environment with:
 
 - Redis 8 server with persistence and modules
 - RedisInsight for visual database management
-- Host networking for easy local development
+- Volume-based configuration
 - Persistent data storage
 
 ## Features
 
 - **Redis 8**: Latest Redis version with advanced features
-- **Redis Modules**: Pre-loaded with RedisBloom and RediSearch modules
-- **RedisInsight**: Web-based Redis GUI for database management
+- **Redis Modules**: Pre-loaded with RedisBloom, RediSearch, RedisJSON, and RedisTimeSeries modules
+- **RedisInsight**: Web-based Redis GUI for database management with auto-configured connection
 - **Persistence**: Data persistence with AOF (Append Only File)
-- **Host Networking**: Direct access via localhost
 - **Volume Mounts**: Persistent data, logs, and configuration
 
 ## Prerequisites
@@ -42,37 +41,49 @@ docker-compose up -d
 - **Container**: `redis-server`
 - **Image**: `redis:8`
 - **Port**: `6379`
-- **Access**: `localhost:6379`
-- **Password**: Set via environment variable
+- **Access**: `redis://redis:6379` (from RedisInsight) or `redis://localhost:6379` (from host)
+- **Configuration**: Uses `redis.conf` mounted from `./redis.conf`
 
 ### RedisInsight
 
 - **Container**: `redisinsight`
 - **Image**: `redislabs/redisinsight:latest`
-- **Port**: `8001` (default)
-- **Access**: `http://localhost:8001`
+- **Port**: `5540`
+- **Access**: `http://localhost:5540`
+- **Auto-configured**: Automatically connects to Redis server
 
 ## Configuration
 
 ### Redis Configuration
 
-The Redis server uses a custom configuration file located at `config/redis.conf`. Key settings include:
+The Redis server uses a custom configuration file located at `config/redis.conf` (mounted to the container). Key settings include:
 
 - Append-only file persistence enabled
-- Password authentication (if configured)
-- RedisBloom and RediSearch modules loaded
+- Redis modules loaded from the base Redis 8 image (RedisBloom, RediSearch, RedisJSON, RedisTimeSeries)
+- Default configuration optimized for development
 
-### Environment Variables
+**Note**: There's also a `config/redis-full.conf` with additional module configurations available.
 
-- `REDIS_PASSWORD`: Sets the password for the default Redis user (optional)
+### RedisInsight Configuration
+
+RedisInsight is pre-configured with environment variables to automatically connect to the Redis server:
+
+- `RI_AUTO_ACCEPT_EULA=YES`: Automatically accepts the EULA
+- `RI_TELEMETRY_ENABLED=FALSE`: Disables telemetry
+- `RI_REDIS_HOST=redis`: Points to the Redis container
+- `RI_REDIS_PORT=6379`: Redis port
+- `RI_REDIS_USERNAME=default`: Default Redis user
 
 ### Using RedisInsight
 
-1. Open `http://localhost:8001` in your browser
+RedisInsight should automatically connect to your Redis server when you open `http://localhost:5540`. If you need to manually add a connection:
+
+1. Open `http://localhost:5540` in your browser
 2. Add a new database connection:
-   - **Host**: `localhost`
+   - **Host**: `redis` (container name) or `localhost` (from host)
    - **Port**: `6379`
-   - **Password**: Enter your password if configured
+   - **Username**: `default` (or leave empty)
+   - **Password**: Leave empty (unless configured)
 
 ## Managing the Stack
 
@@ -96,12 +107,50 @@ docker-compose restart
 
 ## Redis Modules
 
-This setup includes the following Redis modules:
+This setup includes the following Redis modules (built into Redis 8):
 
-- **RediSearch**: Full-text search and secondary indexing.
-- **RedisJSON**: Native JSON data type support for storing, indexing, and querying JSON documents.
-- **RedisBloom**: Probabilistic data structures for scalable set membership, counting, and top-k queries.
-- **RedisTimeSeries**: Time series data management, including ingestion, querying, and aggregation.
+- **RedisBloom**: Probabilistic data structures for scalable set membership, counting, and top-k queries
+- **RediSearch**: Full-text search and secondary indexing
+- **RedisJSON**: Native JSON data type support for storing, indexing, and querying JSON documents
+- **RedisTimeSeries**: Time series data management, including ingestion, querying, and aggregation
+- **VectorSet**: Vector similarity search capabilities
+
+### Using Redis Modules
+
+```redis
+# RedisBloom - Create a Bloom filter
+BF.ADD myfilter item1
+BF.EXISTS myfilter item1
+
+# RediSearch - Create a search index
+FT.CREATE idx ON HASH PREFIX 1 doc: SCHEMA title TEXT body TEXT
+
+# RedisJSON - Store JSON data
+JSON.SET user:1 $ '{"name":"John","age":30}'
+JSON.GET user:1
+
+# RedisTimeSeries - Create time series
+TS.CREATE temperature
+TS.ADD temperature 1609459200 23.5
+```
+
+## Directory Structure
+
+```text
+redis8/
+├── docker-compose.yaml    # Docker Compose configuration
+├── README.md             # This file
+├── LICENSE               # Project license
+├── .gitignore            # Git ignore file
+├── config/               # Redis configuration files
+│   ├── redis.conf        # Main Redis configuration
+│   └── redis-full.conf   # Full Redis configuration with modules
+├── data/                 # Redis data persistence
+│   ├── dump.rdb          # Redis database snapshot
+│   └── appendonlydir/    # AOF persistence files
+├── logs/                 # Redis log files
+└── redis.conf/           # Empty directory (legacy)
+```
 
 ## Data Persistence
 
@@ -122,8 +171,8 @@ This setup includes the following Redis modules:
 
 1. Check if container is running: `docker-compose ps`
 2. Check RedisInsight logs: `docker-compose logs redisinsight`
-3. Try accessing `http://localhost:8001`
-4. Verify port 8001 is not used by another service
+3. Try accessing `http://localhost:5540`
+4. Verify port 5540 is not used by another service
 
 ### Permission Issues
 
